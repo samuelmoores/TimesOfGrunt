@@ -44,7 +44,6 @@ public class PlayerMovement : MonoBehaviour
         moveDirection.y = -9.8f;
 
         moveDirection.Normalize();
-        Debug.Log(moveDirection);
 
         if (CanMove())
             controller.Move(moveDirection * runSpeed * Time.deltaTime);
