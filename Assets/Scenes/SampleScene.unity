@@ -1216,7 +1216,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: e9c75aacdb69697488d1dc68bf87abcb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1574,7 +1574,7 @@ CharacterController:
   m_Radius: 0.41
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.001
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.83, z: 0.21}
 --- !u!114 &1984621075
@@ -1591,8 +1591,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   animator: {fileID: 1984621073}
   controller: {fileID: 1984621074}
+  playerAttack: {fileID: 1984621078}
   cam: {fileID: 330585545}
   runSpeed: 30
+  aimRunSpeed: 15
   turnSpeed: 10
 --- !u!4 &1984621076
 Transform:
@@ -1638,6 +1640,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
   animator: {fileID: 1984621073}
   pistolSocket: {fileID: 287662896}
+  cam: {fileID: 330585545}
 --- !u!4 &2118050202 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: 268b2e91d500a814093accee18100739, type: 3}

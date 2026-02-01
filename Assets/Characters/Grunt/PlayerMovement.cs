@@ -5,8 +5,10 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] Animator animator;
     [SerializeField] CharacterController controller;
+    [SerializeField] PlayerAttack playerAttack;
     [SerializeField] Camera cam;
     [SerializeField] float runSpeed;
+    [SerializeField] float aimRunSpeed;
     [SerializeField] float turnSpeed;
 
     bool freeze = false;
@@ -31,16 +33,34 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveDirection = new Vector3(horizontal, 0.0f, vertical);
 
+        //rotation is handled by camera forward if aiming
         if (moveDirection != Vector3.zero && CanMove())
         {
             moveDirection = Quaternion.AngleAxis(cam.transform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
-            Quaternion toRotation = Quaternion.LookRotation(new Vector3(moveDirection.x, 0.0f, moveDirection.z));
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, turnSpeed * 100.0f * Time.deltaTime);
-            animator.SetBool("run", true);
+            
+            if(!playerAttack.Aiming())
+            {
+                Quaternion toRotation = Quaternion.LookRotation(new Vector3(moveDirection.x, 0.0f, moveDirection.z));
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, turnSpeed * 100.0f * Time.deltaTime);
+            }
+            else
+            {
+                Quaternion toRotation = Quaternion.LookRotation(new Vector3(cam.transform.forward.x, 0.0f, cam.transform.forward.z));
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, turnSpeed * 100.0f * Time.deltaTime);
+            }
+                animator.SetBool("run", true);
         }
         else
         {
             animator.SetBool("run", false);
+        }
+
+        if(playerAttack.Aiming())
+        {
+            Debug.Log(moveDirection.z);
+            Debug.Log("strafe: " + horizontal + " | forward: " + vertical);
+            animator.SetFloat("strafe", horizontal);
+            animator.SetFloat("forward", vertical);
         }
 
         moveDirection.y = -9.8f;
@@ -48,7 +68,13 @@ public class PlayerMovement : MonoBehaviour
         moveDirection.Normalize();
 
         if (CanMove())
-            controller.Move(moveDirection * runSpeed * Time.deltaTime);
+        {
+            if(playerAttack.Aiming())
+                controller.Move(moveDirection * aimRunSpeed * Time.deltaTime);
+            else
+                controller.Move(moveDirection * runSpeed * Time.deltaTime);
+
+        }
     }
 
     bool CanMove()
