@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 656058fe318eb48558d21d66d1a79a2b, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -2404,7 +2404,7 @@ MonoBehaviour:
   topOrbitAimRadius: 2
   MuzzleFlash: {fileID: 247797253}
   plasmaExplosionInstance: {fileID: 3226579763502420046, guid: 563b229ea97a9724ebbc89deae04ae16, type: 3}
-  plasmaExplosionHitInstance: {fileID: 3226579763502420046, guid: 9febd77ba0cbedd4ebc3ec1030385474, type: 3}
+  plasmaExplosionHitInstance: {fileID: 1892351807075712, guid: 44be68b4fc4366142a9cd1ae1f761ea4, type: 3}
 --- !u!1001 &2091196973
 PrefabInstance:
   m_ObjectHideFlags: 0

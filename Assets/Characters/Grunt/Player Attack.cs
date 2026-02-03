@@ -31,7 +31,7 @@ public class PlayerAttack : MonoBehaviour
 
     bool hasWeapon = false;
     bool aiming = false;
-
+    float attackCooldown;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -68,8 +68,11 @@ public class PlayerAttack : MonoBehaviour
             animator.SetBool("aim", false);
         }
 
-        if(aiming && Input.GetKeyDown(KeyCode.Mouse0))
+        attackCooldown += Time.deltaTime;
+
+        if(aiming && Input.GetKeyDown(KeyCode.Mouse0) && attackCooldown > 2.0f)
         {
+            attackCooldown = 0.0f;
             animator.SetTrigger("shoot");
             GameObject plasmaExplosion = Instantiate(plasmaExplosionInstance, MuzzleFlash.transform.position, Quaternion.identity);
             Destroy(plasmaExplosion, 2.0f);
