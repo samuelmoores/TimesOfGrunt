@@ -37,6 +37,8 @@ public class PlayerMovement : MonoBehaviour
         {
             Quaternion toRotation = Quaternion.LookRotation(new Vector3(cam.transform.forward.x, 0.0f, cam.transform.forward.z));
             transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, turnSpeed * 1000.0f * Time.deltaTime);
+            animator.SetFloat("moveX", horizontal, 0.15f, Time.deltaTime);
+            animator.SetFloat("moveZ", vertical, 0.1f, Time.deltaTime);
         }
 
         //rotation is handled by camera forward if aiming
@@ -57,14 +59,7 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("run", false);
         }
 
-        if(playerAttack.Aiming())
-        {
-            animator.SetFloat("strafe", horizontal);
-            animator.SetFloat("forward", vertical);
-        }
-
         moveDirection.y = -9.8f;
-
         moveDirection.Normalize();
 
         if (CanMove())

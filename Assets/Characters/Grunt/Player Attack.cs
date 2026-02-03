@@ -32,6 +32,7 @@ public class PlayerAttack : MonoBehaviour
     bool hasWeapon = false;
     bool aiming = false;
 
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -87,7 +88,16 @@ public class PlayerAttack : MonoBehaviour
             {
                 Debug.Log("Hit: " + hit.collider.name);
                 GameObject plasmaExplosionHit = Instantiate(plasmaExplosionHitInstance, hit.point, Quaternion.identity);
+                plasmaExplosion.transform.parent = MuzzleFlash.transform;
                 Destroy(plasmaExplosionHit, 2.0f);
+
+                GameObject hitObj = hit.collider.gameObject;
+
+                if(hitObj.CompareTag("Mook"))
+                {
+                    Mook mook = hitObj.GetComponent<Mook>();
+                    mook.Damage(0.25f);
+                }
             }
         }
     }
