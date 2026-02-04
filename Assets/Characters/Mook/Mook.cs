@@ -94,7 +94,6 @@ public class Mook : MonoBehaviour
             agent.isStopped = true;
             animator.SetBool("run", false);
         }
-
     }
 
     public void Damage(float damageAmount)
@@ -105,6 +104,7 @@ public class Mook : MonoBehaviour
 
         if(health <= 0.0f)
         {
+            agent.isStopped = true;
             dead = true;
             animator.SetBool("dead", true);
             Destroy(gameObject, 10.0f);
