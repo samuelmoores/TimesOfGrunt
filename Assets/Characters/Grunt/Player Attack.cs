@@ -54,7 +54,7 @@ public class PlayerAttack : MonoBehaviour
     {
         bool dead = playerMovement.isDead();
         ammoText.text = currentAmmo.ToString();
-        if(Input.GetKey(KeyCode.Mouse1) && hasWeapon && !dead)
+        if(Input.GetKey(KeyCode.Mouse1) && hasWeapon && !dead && !playerMovement.Falling())
         {
             cineCam.Follow = aimTarget;
             cineOrbit.Orbits.Center.Height = centerOrbitAimHeight;

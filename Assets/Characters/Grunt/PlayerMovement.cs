@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.Processors;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -33,15 +34,43 @@ public class PlayerMovement : MonoBehaviour
         Cursor.visible = false;
     }
 
+    float fallTimer;
+    bool falling = false;
+
+    public bool Falling()
+    {
+        return falling;
+    }
+
     // Update is called once per frame
     void Update()
     {
         Input.GetKeyDown(KeyCode.W);
 
+        Debug.Log(transform.position.y);
+        
+        //falling downwards
+        if(transform.position.y < 0.0f)
+        {
+            animator.SetBool("fall", true);
+            falling = true;
+            fallTimer += Time.deltaTime;
+
+            if (fallTimer > 5.0f)
+                SceneManager.LoadScene(0);
+
+            Vector3 fallDirection = new Vector3();
+            fallDirection.y = -9.8f;
+            fallDirection.Normalize();
+            controller.Move(fallDirection * runSpeed * Time.deltaTime);
+
+            return;
+        }
+
         float vertical = Input.GetAxisRaw("Vertical");
         float horizontal = Input.GetAxisRaw("Horizontal");
-
         Vector3 moveDirection = new Vector3(horizontal, 0.0f, vertical);
+
 
         if(playerAttack.Aiming())
         {
