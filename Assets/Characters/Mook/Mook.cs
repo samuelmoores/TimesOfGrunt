@@ -7,6 +7,8 @@ public class Mook : MonoBehaviour
 {
     [SerializeField] GameObject attackInstance;
     [SerializeField] Transform attackSpawnPoint;
+    [SerializeField] float walkSpeed;
+    [SerializeField] float runSpeed;
 
     GameObject player;
     Animator animator;
@@ -14,13 +16,13 @@ public class Mook : MonoBehaviour
 
     NavMeshAgent agent;
     bool aggro = false;
-    float aggroDistance = 6.0f;
+    float aggroDistance = 10.0f;
     int currentPatrolPoint = 0;
     float waitTimer;
     bool dead = false;
 
-    float attackTimer;
-    float attackDistance = 10.0f;
+    float attackTimer = 4.0f;
+    float attackDistance = 6.0f;
     bool damaged = false;
     float health = 1.0f;
 
@@ -43,23 +45,25 @@ public class Mook : MonoBehaviour
         player = GameObject.Find("Player");
     }
 
+    bool attacking = false;
     // Update is called once per frame
     void Update()
     {
         Vector3 lookDirection = new Vector3();
         float distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
-        agent.isStopped = false;
 
         //patrol points
         if(!aggro && !dead && !damaged)
         {
+            agent.speed = walkSpeed;
             //walk to next patrol point
-            if(agent.remainingDistance > 0.5f)
+            if(agent.remainingDistance > agent.stoppingDistance)
             {
                 lookDirection = (patrolPoints[currentPatrolPoint].position - transform.position).normalized;
                 lookDirection.y = 0.0f;
                 transform.forward = lookDirection;
-                animator.SetBool("run", true);
+                agent.isStopped = false;
+                animator.SetBool("walk", true);
 
                 //check if player is close enough for agro
                 if (distanceFromPlayer < aggroDistance && !aggro)
@@ -70,7 +74,8 @@ public class Mook : MonoBehaviour
             //wait then set next control point
             else
             {
-                animator.SetBool("run", false);
+                animator.SetBool("walk", false);
+                agent.isStopped = true;
                 waitTimer += Time.deltaTime;
                 if (waitTimer > 4.0f)
                 {
@@ -82,40 +87,82 @@ public class Mook : MonoBehaviour
             }
         }
         //chase player
-        else if (!damaged)
+        else if (!damaged && aggro)
         {
+            agent.speed = runSpeed;
             Vector3 playerPosition = player.transform.position;
             agent.destination = playerPosition;
             lookDirection = (player.transform.position - transform.position).normalized;
             transform.forward = lookDirection;
 
+            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+
+            //attack distance
             if(distanceFromPlayer < attackDistance)
             {
-                attackTimer += Time.deltaTime;
-
-                if(attackTimer >= 3.0f)
+                //throw attack
+                if(playerHealth.Shielded())
                 {
-                    animator.SetTrigger("attack");
-                    attackTimer = 0.0f;
-                }
+                    attackTimer += Time.deltaTime;
 
-                agent.isStopped = true;
-                animator.SetBool("run", false);
+                    if (attackTimer >= 3.0f)
+                    {
+                        agent.isStopped = true;
+                        animator.SetTrigger("attack");
+                        attacking = true;
+                        attackTimer = 0.0f;
+                    }
+                }//melee attack
+                else if (distanceFromPlayer < agent.stoppingDistance && !attacking)
+                {
+                    animator.SetTrigger("melee");
+                    attacking = true;
+                    agent.isStopped = true;
+                    animator.SetBool("run", false);
+                }
+                else if(!attacking)
+                {
+                    agent.isStopped = false;
+                    animator.SetBool("run", true);
+
+                }
             }
-            else
+            else if(!attacking) // get into attack distance
+            {
+                agent.isStopped = false;
                 animator.SetBool("run", true);
+            }
+            
+        }
+    }
+
+    public void UnstopAgent()
+    {
+        Debug.Log("un stop agent");
+        agent.isStopped = false;
+        attacking = false;
+    }
+
+    public void DealDamage()
+    {
+        if (agent.remainingDistance < agent.stoppingDistance)
+        {
+            PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
+            Vector2 position2D = new Vector2(transform.position.x, transform.position.z);
+            playerMovement.Knockback(position2D);
         }
     }
 
     public void Damage(float damageAmount)
     {
+        agent.isStopped = true;
         damaged = true;
         health -= damageAmount;
         aggro = true;
+        attacking = false;
 
         if(health <= 0.0f)
         {
-            agent.isStopped = true;
             dead = true;
             animator.SetBool("dead", true);
             Destroy(gameObject, 10.0f);
@@ -123,13 +170,16 @@ public class Mook : MonoBehaviour
         else
         {
             animator.SetTrigger("damage");
-
         }
+
+        animator.SetBool("run", false);
     }
 
     public void EndDamage()
     {
         damaged = false;
+        agent.isStopped = false;
+        Debug.Log("EndDamage()");
     }
 
     public void Attack()

@@ -16,7 +16,7 @@ public class PlayerMovement : MonoBehaviour
 
     PlayerHealth playerHealth;
 
-    Vector3 knowckbackVelocity;
+    Vector2 knowckbackVelocity;
 
     bool freeze = false;
     bool knockBack = false;
@@ -47,7 +47,6 @@ public class PlayerMovement : MonoBehaviour
     {
         Input.GetKeyDown(KeyCode.W);
 
-        Debug.Log(transform.position.y);
         
         //falling downwards
         if(transform.position.y < 0.0f)
@@ -97,7 +96,10 @@ public class PlayerMovement : MonoBehaviour
         {
             knockBackTimer += Time.deltaTime;
             moveDirection = new Vector3(0, 0, 0);
-            moveDirection += knowckbackVelocity;
+            moveDirection.x += knowckbackVelocity.x;
+            moveDirection.z += knowckbackVelocity.y;
+            moveDirection.y = -9.8f;
+            moveDirection.Normalize();
             controller.Move(moveDirection * runSpeed * Time.deltaTime);
 
             if(knowckbackVelocity.x > 0.0f)
@@ -105,10 +107,10 @@ public class PlayerMovement : MonoBehaviour
             else
                 knowckbackVelocity.x += Time.deltaTime / 2.0f;
 
-            if (knowckbackVelocity.z > 0.0f)
-                knowckbackVelocity.z -= Time.deltaTime / 2.0f;
+            if (knowckbackVelocity.y > 0.0f)
+                knowckbackVelocity.y -= Time.deltaTime / 2.0f;
             else
-                knowckbackVelocity.z += Time.deltaTime / 2.0f;
+                knowckbackVelocity.y += Time.deltaTime / 2.0f;
 
             animator.SetBool("run", false);
 
@@ -163,17 +165,22 @@ public class PlayerMovement : MonoBehaviour
         return dead;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public void Knockback(Vector2 collision)
     {
-        if(!knockBack)
+        if (!knockBack)
         {
             knockBack = true;
-            knowckbackVelocity = (transform.position - collision.gameObject.transform.position).normalized;
-            knowckbackVelocity.y = 0.0f;
-            playerHealth.TakeDamage(1.25f);
+            Vector2 position2D = new Vector2(transform.position.x, transform.position.z);
+            knowckbackVelocity = (position2D - collision).normalized;
+            playerHealth.TakeDamage(0.25f);
 
             if (dead)
                 knowckbackVelocity = Vector3.zero;
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        playerHealth.TakeDamage(1.25f);
     }
 }

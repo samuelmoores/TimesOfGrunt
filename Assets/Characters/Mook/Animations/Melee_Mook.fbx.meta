@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1e4ab3a4221464a4c8de38fd11618516
+guid: b4e4f6b684a433d4997347eb13512b30
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -31,11 +31,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Mook_Attack
+      name: Melee_Mook
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 81
+      lastFrame: 72
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -55,15 +55,15 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.43093923
-        functionName: Attack
+      - time: 0.9166666
+        functionName: UnstopAgent
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: 0eaeee19801954740af15a31c9fda9ef, type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.96759254
-        functionName: UnstopAgent
+      - time: 0.3425926
+        functionName: DealDamage
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: 0eaeee19801954740af15a31c9fda9ef, type: 3}
         floatParameter: 0

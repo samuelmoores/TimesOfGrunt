@@ -12,6 +12,8 @@ public class PlayerHealth : MonoBehaviour
     float playerHealth;
     float shieldHealth;
 
+    bool shielded = true;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -27,6 +29,11 @@ public class PlayerHealth : MonoBehaviour
         sliderShield.value = shieldHealth;
     }
 
+    public bool Shielded()
+    {
+        return shielded;
+    }
+
     public void TakeDamage(float damageAmount)
     {
         if(shieldHealth > 0.0f)
@@ -34,7 +41,10 @@ public class PlayerHealth : MonoBehaviour
             shieldHealth -= damageAmount;
 
             if(shieldHealth < 0.0f)
+            {
                 shield.SetActive(false);
+                shielded = false;
+            }
         }
         else
         {
