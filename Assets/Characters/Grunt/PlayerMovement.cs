@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.Processors;
 using UnityEngine.InputSystem.XR;
 
 public class PlayerMovement : MonoBehaviour
@@ -11,14 +13,22 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float aimRunSpeed;
     [SerializeField] float turnSpeed;
 
+    PlayerHealth playerHealth;
+
+    Vector3 knowckbackVelocity;
+
     bool freeze = false;
-    bool hit = false;
+    bool knockBack = false;
+    float knockBackTimer;
+    bool dead = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
+        playerHealth = GetComponent<PlayerHealth>();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -54,6 +64,31 @@ public class PlayerMovement : MonoBehaviour
 
             animator.SetBool("run", true);
         }
+        else if(knockBack)
+        {
+            knockBackTimer += Time.deltaTime;
+            moveDirection = new Vector3(0, 0, 0);
+            moveDirection += knowckbackVelocity;
+            controller.Move(moveDirection * runSpeed * Time.deltaTime);
+
+            if(knowckbackVelocity.x > 0.0f)
+                knowckbackVelocity.x -= Time.deltaTime/2.0f;
+            else
+                knowckbackVelocity.x += Time.deltaTime / 2.0f;
+
+            if (knowckbackVelocity.z > 0.0f)
+                knowckbackVelocity.z -= Time.deltaTime / 2.0f;
+            else
+                knowckbackVelocity.z += Time.deltaTime / 2.0f;
+
+            animator.SetBool("run", false);
+
+            if (knowckbackVelocity.magnitude <= 0.1f)
+            {
+                knockBackTimer = 0.0f;
+                knockBack = freeze = false;
+            }
+        }
         else
         {
             animator.SetBool("run", false);
@@ -70,10 +105,46 @@ public class PlayerMovement : MonoBehaviour
                 controller.Move(moveDirection * runSpeed * Time.deltaTime);
 
         }
+
     }
 
     bool CanMove()
     {
-        return !freeze && !hit;
+        return !freeze && !knockBack && !dead;
+    }
+
+    public void Freeze()
+    {
+        freeze = true;
+    }
+
+    public void Unfreeze()
+    {
+        freeze = false;
+    }
+
+    public void Die()
+    {
+        dead = true;
+        animator.SetBool("dead", true);
+    }
+
+    public bool isDead()
+    {
+        return dead;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(!knockBack)
+        {
+            knockBack = true;
+            knowckbackVelocity = (transform.position - collision.gameObject.transform.position).normalized;
+            knowckbackVelocity.y = 0.0f;
+            playerHealth.TakeDamage(1.25f);
+
+            if (dead)
+                knowckbackVelocity = Vector3.zero;
+        }
     }
 }

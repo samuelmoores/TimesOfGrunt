@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,6 +20,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] Transform MuzzleFlash;
     [SerializeField] GameObject plasmaExplosionInstance;
     [SerializeField] GameObject plasmaExplosionHitInstance;
+    [SerializeField] PlayerMovement playerMovement;
+    [SerializeField] TextMeshProUGUI ammoText;
     GameObject weapon;
 
     Vector2 screenPoint;
@@ -33,19 +36,25 @@ public class PlayerAttack : MonoBehaviour
     bool aiming = false;
     float attackCooldown;
 
+    int ammo = 5;
+    int currentAmmo;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         orbitDefaultHeight = cineOrbit.Orbits.Center.Height;
         orbitDefaultRadius = cineOrbit.Orbits.Center.Radius;
         aimReticle.gameObject.SetActive(false);
+        currentAmmo = ammo;
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(KeyCode.Mouse1) && hasWeapon)
+        bool dead = playerMovement.isDead();
+        ammoText.text = currentAmmo.ToString();
+        if(Input.GetKey(KeyCode.Mouse1) && hasWeapon && !dead)
         {
             cineCam.Follow = aimTarget;
             cineOrbit.Orbits.Center.Height = centerOrbitAimHeight;
@@ -70,8 +79,10 @@ public class PlayerAttack : MonoBehaviour
 
         attackCooldown += Time.deltaTime;
 
-        if(aiming && Input.GetKeyDown(KeyCode.Mouse0) && attackCooldown > 2.0f)
+        if(aiming && Input.GetKeyDown(KeyCode.Mouse0) && attackCooldown > 0.25f && !dead && currentAmmo > 0)
         {
+            currentAmmo--;
+
             attackCooldown = 0.0f;
             animator.SetTrigger("shoot");
             GameObject plasmaExplosion = Instantiate(plasmaExplosionInstance, MuzzleFlash.transform.position, Quaternion.identity);
@@ -103,6 +114,16 @@ public class PlayerAttack : MonoBehaviour
                 }
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Q) && currentAmmo < ammo)
+            Reload();
+    }
+
+    void Reload()
+    {
+        animator.SetTrigger("reload");
+        currentAmmo = ammo;
+        playerMovement.Freeze();
     }
 
     void AttachWeapon(GameObject weaponToAttach)
@@ -115,6 +136,8 @@ public class PlayerAttack : MonoBehaviour
     {
         return aiming;
     }
+
+    
 
     public void SetWeapon(GameObject newWeapon)
     {
