@@ -13,6 +13,7 @@ public class Mook : MonoBehaviour
     GameObject player;
     Animator animator;
     List<Transform> patrolPoints;
+    GameManager gm;
 
     NavMeshAgent agent;
     bool aggro = false;
@@ -33,6 +34,7 @@ public class Mook : MonoBehaviour
         attackTimer = 10.0f;
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         GameObject patrolPointParent = GameObject.Find("PatrolPoints");
 
         //find patrol points in level
@@ -87,7 +89,7 @@ public class Mook : MonoBehaviour
             }
         }
         //chase player
-        else if (!damaged && aggro)
+        else if (!damaged && aggro && !dead)
         {
             agent.speed = runSpeed;
             Vector3 playerPosition = player.transform.position;
@@ -127,7 +129,7 @@ public class Mook : MonoBehaviour
 
                 }
             }
-            else if(!attacking) // get into attack distance
+            else if(!attacking && !dead) // get into attack distance
             {
                 agent.isStopped = false;
                 animator.SetBool("run", true);
@@ -155,31 +157,35 @@ public class Mook : MonoBehaviour
 
     public void Damage(float damageAmount)
     {
-        agent.isStopped = true;
-        damaged = true;
-        health -= damageAmount;
-        aggro = true;
-        attacking = false;
-
-        if(health <= 0.0f)
+        if(!dead)
         {
-            dead = true;
-            animator.SetBool("dead", true);
-            Destroy(gameObject, 10.0f);
-        }
-        else
-        {
-            animator.SetTrigger("damage");
-        }
+            agent.isStopped = true;
+            damaged = true;
+            health -= damageAmount;
+            aggro = true;
+            attacking = false;
 
-        animator.SetBool("run", false);
+            if(health <= 0.0f)
+            {
+                dead = true;
+                animator.SetBool("dead", true);
+                gm.AddKill();
+                Destroy(gameObject, 10.0f);
+            }
+            else
+            {
+                animator.SetTrigger("damage");
+            }
+        }
     }
 
     public void EndDamage()
     {
-        damaged = false;
-        agent.isStopped = false;
-        Debug.Log("EndDamage()");
+        if(!dead)
+        {
+            damaged = false;
+            agent.isStopped = false;
+        }
     }
 
     public void Attack()

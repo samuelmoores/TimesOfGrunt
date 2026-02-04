@@ -53,10 +53,15 @@ public class PlayerHealth : MonoBehaviour
 
         if(playerHealth <= 0.0f)
         {
-            playerMovement.Die();
-            playerAgain.SetActive(true);
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            Die();
         }
+    }
+
+    public void Die()
+    {
+        playerMovement.Die();
+        playerAgain.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }

@@ -100,7 +100,6 @@ public class PlayerAttack : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
             {
-                Debug.Log("Hit: " + hit.collider.name);
                 GameObject plasmaExplosionHit = Instantiate(plasmaExplosionHitInstance, hit.point, Quaternion.identity);
                 plasmaExplosion.transform.parent = MuzzleFlash.transform;
                 Destroy(plasmaExplosionHit, 2.0f);
