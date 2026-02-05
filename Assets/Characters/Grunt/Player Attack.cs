@@ -22,11 +22,17 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] GameObject plasmaExplosionHitInstance;
     [SerializeField] PlayerMovement playerMovement;
     [SerializeField] TextMeshProUGUI ammoText;
+    [SerializeField] AudioClip[] gunSounds;
+    [SerializeField] AudioClip[] sparkSounds;
+    [SerializeField] AudioClip[] reloadSounds;
     GameObject weapon;
 
     Vector2 screenPoint;
     Vector3 aimPosition;
     Vector3 defaultPosition;
+
+    int prevGunIndex = 0;
+    int prevSparkIndex = 0;
 
     float orbitDefaultHeight;
     float orbitDefaultRadius;
@@ -83,6 +89,16 @@ public class PlayerAttack : MonoBehaviour
         {
             currentAmmo--;
 
+            int index = Random.Range(0, gunSounds.Length - 1);
+
+            while (index == prevGunIndex)
+            {
+                index = Random.Range(0, gunSounds.Length - 1);
+            }
+
+            SoundManager.instance.PlaySound(gunSounds[index], transform);
+            prevGunIndex = index;
+
             attackCooldown = 0.0f;
             animator.SetTrigger("shoot");
             GameObject plasmaExplosion = Instantiate(plasmaExplosionInstance, MuzzleFlash.transform.position, Quaternion.identity);
@@ -101,6 +117,16 @@ public class PlayerAttack : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
             {
                 GameObject plasmaExplosionHit = Instantiate(plasmaExplosionHitInstance, hit.point, Quaternion.identity);
+                int indexSpark = Random.Range(0, sparkSounds.Length - 1);
+
+                while (indexSpark == prevSparkIndex)
+                {
+                    indexSpark = Random.Range(0, sparkSounds.Length - 1);
+                }
+
+                SoundManager.instance.PlaySound(sparkSounds[indexSpark], transform);
+                prevSparkIndex = indexSpark;
+
                 plasmaExplosion.transform.parent = MuzzleFlash.transform;
                 Destroy(plasmaExplosionHit, 2.0f);
 
@@ -110,6 +136,12 @@ public class PlayerAttack : MonoBehaviour
                 {
                     Mook mook = hitObj.GetComponent<Mook>();
                     mook.Damage(0.25f);
+                }
+
+                if (hitObj.CompareTag("HeavyMook"))
+                {
+                    HeavyMook mook = hitObj.GetComponent<HeavyMook>();
+                    mook.Damage(0.10f);
                 }
             }
         }
@@ -123,6 +155,12 @@ public class PlayerAttack : MonoBehaviour
         animator.SetTrigger("reload");
         currentAmmo = ammo;
         playerMovement.Freeze();
+    }
+
+    public void ReloadSound()
+    {
+        int reloadIndex = Random.Range(0, reloadSounds.Length - 1);
+        SoundManager.instance.PlaySound(reloadSounds[reloadIndex], transform);
     }
 
     void AttachWeapon(GameObject weaponToAttach)

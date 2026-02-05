@@ -131,6 +131,18 @@ MonoBehaviour:
   attackSpawnPoint: {fileID: 6345813154318394291}
   walkSpeed: 1
   runSpeed: 4
+  footstepSoundClips:
+  - {fileID: 8300000, guid: 23e42610438898a459ee0ec16a41f24a, type: 3}
+  - {fileID: 8300000, guid: 520c58e644aadeb4999ead7d57b9f284, type: 3}
+  - {fileID: 8300000, guid: 2b63c89dcc1301b47a463440331d779f, type: 3}
+  - {fileID: 8300000, guid: 39862422558a3c74faef9e5e9eb44992, type: 3}
+  - {fileID: 8300000, guid: cf9646d4409db434a99b3e90e3fe24f9, type: 3}
+  - {fileID: 8300000, guid: e18502e697f44674d859682082345af3, type: 3}
+  attackSounds:
+  - {fileID: 8300000, guid: f620ecdf1c2b0964292e0e1027e442ac, type: 3}
+  - {fileID: 8300000, guid: 457e3b400207dd340b6b62525b44d21f, type: 3}
+  - {fileID: 8300000, guid: bb59f10bfeb32f447b8c49a1dbccc08e, type: 3}
+  meleeSound: {fileID: 0}
 --- !u!195 &3089178689144692968
 NavMeshAgent:
   m_ObjectHideFlags: 0

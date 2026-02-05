@@ -55,6 +55,13 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
+      - time: 0.44775742
+        functionName: ReloadSound
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: b67357507c8c362498fd0748aaad3d63, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       - time: 0.93094635
         functionName: Unfreeze
         data: 

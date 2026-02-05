@@ -3,8 +3,12 @@ using UnityEngine;
 public class MookSpawner : MonoBehaviour
 {
     [SerializeField] GameObject normalMook;
+    [SerializeField] int numSpawns;
+    [SerializeField] float spawnTime;
+    [SerializeField] int startPatrolPointIndex;
 
-    float spawnTimer;
+    float timer;
+    int currNumSpawns = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -15,17 +19,18 @@ public class MookSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        spawnTimer += Time.deltaTime;
+        timer += Time.deltaTime;
 
-        if(spawnTimer > 15.0f)
+        if(timer > spawnTime && currNumSpawns < numSpawns)
         {
             SpawnNormalMook();
-            spawnTimer = 0.0f;
+            timer = 0.0f;
         }
     }
 
     public void SpawnNormalMook()
     {
         GameObject mookInstance = Instantiate(normalMook, transform.position, Quaternion.identity);
+        currNumSpawns++;
     }
 }

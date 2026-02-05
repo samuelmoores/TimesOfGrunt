@@ -9,6 +9,9 @@ public class Mook : MonoBehaviour
     [SerializeField] Transform attackSpawnPoint;
     [SerializeField] float walkSpeed;
     [SerializeField] float runSpeed;
+    [SerializeField] AudioClip[] footstepSoundClips;
+    [SerializeField] AudioClip[] attackSounds;
+    [SerializeField] AudioClip meleeSound;
 
     GameObject player;
     Animator animator;
@@ -188,13 +191,39 @@ public class Mook : MonoBehaviour
         }
     }
 
+    int prevIndexAttack = 0;
     public void Attack()
     {
+        int index = Random.Range(0, attackSounds.Length - 1);
+
+        while (index == prevIndexAttack)
+        {
+            index = Random.Range(0, attackSounds.Length - 1);
+        }
+
+        SoundManager.instance.PlaySound(attackSounds[index], transform);
+        prevIndexAttack = index;
+
+
         GameObject attackObj = Instantiate(attackInstance, attackSpawnPoint.position, Quaternion.identity);
         Destroy(attackObj, 5.0f);
         Rigidbody rb = attackObj.GetComponent<Rigidbody>();
         Vector3 shootDirection = player.transform.position - transform.position;
         rb.AddForce(shootDirection * Time.deltaTime * 5000.0f);
         rb.angularVelocity = new Vector3(20.0f, 3.0f, 11.0f);
+    }
+
+    int prevIndex = 0;
+    public void Footstep()
+    {
+        int index = Random.Range(0, footstepSoundClips.Length - 1);
+
+        while (index == prevIndex)
+        {
+            index = Random.Range(0, footstepSoundClips.Length - 1);
+        }
+
+        SoundManager.instance.PlaySound(footstepSoundClips[index], transform);
+        prevIndex = index;
     }
 }

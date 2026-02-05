@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float runSpeed;
     [SerializeField] float aimRunSpeed;
     [SerializeField] float turnSpeed;
+    [SerializeField] AudioClip[] footstepSoundClips;
 
     PlayerHealth playerHealth;
 
@@ -182,5 +183,19 @@ public class PlayerMovement : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         playerHealth.TakeDamage(1.25f);
+    }
+
+    int prevIndex = 0;
+    public void Footstep()
+    {
+        int index = Random.Range(0, footstepSoundClips.Length - 1);
+
+        while(index == prevIndex)
+        {
+            index = Random.Range(0, footstepSoundClips.Length - 1);
+        }
+
+        SoundManager.instance.PlaySound(footstepSoundClips[index], transform);
+        prevIndex = index;
     }
 }
