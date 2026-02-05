@@ -16,8 +16,6 @@ public class HeavyMook : MonoBehaviour
     GameManager gm;
 
     NavMeshAgent agent;
-    bool aggro = false;
-    float aggroDistance = 12.0f;
     float waitTimer;
     bool dead = false;
 
@@ -35,6 +33,7 @@ public class HeavyMook : MonoBehaviour
         gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         
         player = GameObject.Find("Player");
+
     }
 
     bool attacking = false;
@@ -45,57 +44,41 @@ public class HeavyMook : MonoBehaviour
         Vector3 lookDirection = new Vector3();
         float distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
 
-        //stay idle
-        if (!aggro && !dead && !damaged)
-        {
-            //check if player is close enough for agro
-            if (distanceFromPlayer < aggroDistance && !aggro)
-            {
-                aggro = true;
-            }
-
-            animator.SetBool("walk", false);
-        }
         //chase player
-        else if (!damaged && aggro && !dead)
+        if (!damaged && !dead)
         {
+
             agent.speed = runSpeed;
             Vector3 playerPosition = player.transform.position;
-            agent.destination = playerPosition;
             lookDirection = (player.transform.position - transform.position).normalized;
             transform.forward = lookDirection;
 
-            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-
-            //attack distance
             attackTimer += Time.deltaTime;
-            if (distanceFromPlayer < attackDistance)
+            
+            agent.isStopped = true;
+
+            //melee attack
+            if (distanceFromPlayer < agent.stoppingDistance && !punching)
             {
-                agent.isStopped = true;
-
-                //melee attack
-                if (distanceFromPlayer < agent.stoppingDistance && !punching)
-                {
-                    animator.SetTrigger("melee");
-                    punching = true;
-                }
-                else if (attackTimer >= 7.0f && !attacking)
-                {
-                    animator.SetTrigger("attack");
-                    attacking = true;
-                    attackTimer = 0.0f;
-                }
-                else
-                {
-                    animator.SetBool("walk", false);
-                }
-
+                animator.SetTrigger("melee");
+                punching = true;
             }
+            //range attack 
+            else if (attackTimer >= 7.0f && !attacking && distanceFromPlayer < attackDistance)
+            {
+                animator.SetTrigger("attack");
+                attacking = true;
+                attackTimer = 0.0f;
+            }
+            //chase player
             else if (!attacking && !dead) // get into attack distance
             {
+                agent.destination = player.transform.position;
+
                 agent.isStopped = false;
                 animator.SetBool("walk", true);
             }
+
 
         }
     }
@@ -121,7 +104,7 @@ public class HeavyMook : MonoBehaviour
     int prevDamageIndex = 0;
     public void Damage(float damageAmount)
     {
-        if (!dead && aggro && !attacking && !punching)
+        if (!dead && !attacking && !punching)
         {
             health -= damageAmount;
 
@@ -133,6 +116,7 @@ public class HeavyMook : MonoBehaviour
             }
 
             SoundManager.instance.PlaySound(damageSounds[damageIndex], transform, 1.0f, 0.0f);
+            prevDamageIndex = damageIndex;
 
             if (health <= 0.0f)
             {

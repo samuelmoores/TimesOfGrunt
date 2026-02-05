@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float aimRunSpeed;
     [SerializeField] float turnSpeed;
     [SerializeField] AudioClip[] footstepSoundClips;
+    [SerializeField] AudioClip deathSound;
 
     PlayerHealth playerHealth;
 
@@ -31,6 +32,8 @@ public class PlayerMovement : MonoBehaviour
         controller = GetComponent<CharacterController>();
         playerHealth = GetComponent<PlayerHealth>();
 
+
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -43,6 +46,7 @@ public class PlayerMovement : MonoBehaviour
         return falling;
     }
 
+    bool playSound = false;
     // Update is called once per frame
     void Update()
     {
@@ -50,13 +54,18 @@ public class PlayerMovement : MonoBehaviour
 
         
         //falling downwards
-        if(transform.position.y < 0.0f)
+        if(transform.position.y < -1.0f)
         {
             animator.SetBool("fall", true);
+            if(!playSound)
+            {
+                SoundManager.instance.PlaySound(deathSound, transform, 1.0f, 0.0f);
+                playSound = true;
+            }
             falling = true;
             fallTimer += Time.deltaTime;
 
-            if (fallTimer > 5.0f)
+            if (fallTimer > 3.0f)
                 SceneManager.LoadScene(0);
 
             Vector3 fallDirection = new Vector3();
@@ -95,11 +104,16 @@ public class PlayerMovement : MonoBehaviour
         }
         else if(knockBack)
         {
+            controller.excludeLayers = LayerMask.GetMask("TransparentFX");
+
             knockBackTimer += Time.deltaTime;
             moveDirection = new Vector3(0, 0, 0);
             moveDirection.x += knowckbackVelocity.x;
             moveDirection.z += knowckbackVelocity.y;
-            moveDirection.y = -9.8f;
+
+            if(!controller.isGrounded)
+                moveDirection.y = -9.8f;
+
             moveDirection.Normalize();
             controller.Move(moveDirection * runSpeed * Time.deltaTime);
 
@@ -166,13 +180,13 @@ public class PlayerMovement : MonoBehaviour
         return dead;
     }
 
-    public void Knockback(Vector2 collision)
+    public void Knockback(Vector2 collision, int mag = 1)
     {
         if (!knockBack)
         {
             knockBack = true;
             Vector2 position2D = new Vector2(transform.position.x, transform.position.z);
-            knowckbackVelocity = (position2D - collision).normalized;
+            knowckbackVelocity = (position2D - collision).normalized * 4 * mag;
             playerHealth.TakeDamage(0.25f);
 
             if (dead)
@@ -182,7 +196,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        playerHealth.TakeDamage(1.25f);
+        playerHealth.TakeDamage(0.35f);
+
+        if(collision.gameObject.CompareTag("HeavyCube"))
+        {
+            Knockback(collision.gameObject.transform.position.normalized, 4);
+        }
     }
 
     int prevIndex = 0;
